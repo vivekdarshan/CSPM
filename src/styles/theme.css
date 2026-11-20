@@ -24,6 +24,15 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
+  /* Severity palette (validated for CVD separation; always paired with a text label) */
+  --severity-critical: #b42323;
+  --severity-high: #e66a2c;
+  --severity-high-ink: #b4501a;
+  --severity-medium: #f5bf2a;
+  --severity-medium-ink: #8a6400;
+  --severity-low: #2a78d6;
+  --success: #0b8a0b;
+
   --sidebar: var(--background);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
@@ -58,6 +67,14 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+
+  --severity-critical: #cf3535;
+  --severity-high: #ec7a36;
+  --severity-high-ink: #ec7a36;
+  --severity-medium: #f5c842;
+  --severity-medium-ink: #f5c842;
+  --severity-low: #4a90e8;
+  --success: #2fb82f;
 }
 
 @theme inline {
@@ -91,6 +108,13 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-high: var(--severity-high);
+  --color-severity-high-ink: var(--severity-high-ink);
+  --color-severity-medium: var(--severity-medium);
+  --color-severity-medium-ink: var(--severity-medium-ink);
+  --color-severity-low: var(--severity-low);
+  --color-success: var(--success);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);

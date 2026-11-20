@@ -1,4 +1,6 @@
-import { useSearch } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
+import { Info } from 'lucide-react'
+import { USE_MOCK_API } from '@/lib/api/client'
 import {
   Card,
   CardContent,
@@ -19,30 +21,30 @@ export function SignIn() {
         <CardHeader>
           <CardTitle className='text-lg tracking-tight'>Sign in</CardTitle>
           <CardDescription>
-            Enter your email and password below to <br />
-            log into your account
+            Sign in to review your cloud security posture.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className='space-y-4'>
+          {USE_MOCK_API && (
+            <div className='bg-muted text-muted-foreground flex gap-2 rounded-md p-3 text-xs'>
+              <Info className='mt-px size-3.5 shrink-0' aria-hidden />
+              <span>
+                Demo mode: sign in with any email and a password of 7 or more
+                characters.
+              </span>
+            </div>
+          )}
           <UserAuthForm redirectTo={redirect} />
         </CardContent>
         <CardFooter>
-          <p className='text-muted-foreground px-8 text-center text-sm'>
-            By clicking sign in, you agree to our{' '}
-            <a
-              href='/terms'
-              className='hover:text-primary underline underline-offset-4'
+          <p className='text-muted-foreground w-full text-center text-sm'>
+            New here?{' '}
+            <Link
+              to='/sign-up'
+              className='text-foreground font-medium underline-offset-4 hover:underline'
             >
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a
-              href='/privacy'
-              className='hover:text-primary underline underline-offset-4'
-            >
-              Privacy Policy
-            </a>
-            .
+              Create an account
+            </Link>
           </p>
         </CardFooter>
       </Card>

@@ -1,10 +1,11 @@
 import { type SVGProps } from 'react'
+import { APP_CONFIG } from '@/config/app'
 import { cn } from '@/lib/utils'
 
+/** Shield-with-check mark. */
 export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      id='shadcn-admin-logo'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
       height='24'
@@ -17,8 +18,9 @@ export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
       className={cn('size-6', className)}
       {...props}
     >
-      <title>Shadcn-Admin</title>
-      <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
+      <title>{APP_CONFIG.name}</title>
+      <path d='M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z' />
+      <path d='m8.5 12 2.5 2.5 4.5-5' />
     </svg>
   )
 }

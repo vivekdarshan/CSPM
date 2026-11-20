@@ -1,119 +1,58 @@
-# Shadcn Admin Dashboard
+# Vigil — Cloud Security Posture Management for SMEs
 
-Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
+A simplified security platform for small and medium businesses using AWS, Azure and Google Cloud.
 
-![alt text](public/images/shadcn-admin.png)
+- Identify misconfigurations
+- Detect exposed resources
+- Monitor security settings
+- Recommend corrective actions
 
-[![Sponsored by Clerk](https://img.shields.io/badge/Sponsored%20by-Clerk-5b6ee1?logo=clerk)](https://go.clerk.com/GttUAaK)
+> "Vigil" is a placeholder product name. Change it in `src/config/app.ts`.
 
-I've been creating dashboard UIs at work and for my personal projects. I always wanted to make a reusable collection of dashboard UI for future projects; and here it is now. While I've created a few custom components, some of the code is directly adapted from ShadcnUI examples.
+## Build phases
 
-> This is not a starter project (template) though. I'll probably make one in the future.
+| Phase | Scope                                                                     | Status      |
+| ----- | ------------------------------------------------------------------------- | ----------- |
+| 1     | Frontend foundation: login, sidebar, header, shared components, dashboard | Done        |
+| 2     | AWS onboarding: connection workflow, status, account details              | Not started |
+| 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Not started |
+| 4     | Security findings: severity, details, risk, remediation guidance          | Not started |
+| 5     | Compliance (CIS) and alerts                                               | Not started |
+| 6     | Remediation: approvals, execution, verification                           | Not started |
 
-## Features
-
-- Light/dark mode
-- Responsive
-- Accessible
-- With built-in Sidebar component
-- Global search command
-- 10+ pages
-- Extra custom components
-- RTL support
-
-<details>
-<summary>Customized Components (click to expand)</summary>
-
-This project uses Shadcn UI components, but some have been slightly modified for better RTL (Right-to-Left) support and other improvements. These customized components differ from the original Shadcn UI versions.
-
-If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest add <component>`), it's generally safe for non-customized components. For the listed customized ones, you may need to manually merge changes to preserve the project's modifications and avoid overwriting RTL support or other updates.
-
-> If you don't require RTL support, you can safely update the 'RTL Updated Components' via the Shadcn CLI, as these changes are primarily for RTL compatibility. The 'Modified Components' may have other customizations to consider.
-
-### Modified Components
-
-- scroll-area
-- sonner
-- separator
-
-### RTL Updated Components
-
-- alert-dialog
-- calendar
-- command
-- dialog
-- dropdown-menu
-- select
-- table
-- sheet
-- sidebar
-- switch
-
-**Notes:**
-
-- **Modified Components**: These have general updates, potentially including RTL adjustments.
-- **RTL Updated Components**: These have specific changes for RTL language support (e.g., layout, positioning).
-- For implementation details, check the source files in `src/components/ui/`.
-- All other Shadcn UI components in the project are standard and can be safely updated via the CLI.
-
-</details>
-
-## Tech Stack
-
-**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
-
-**Build Tool:** [Vite](https://vitejs.dev/)
-
-**Routing:** [TanStack Router](https://tanstack.com/router/latest)
-
-**Type Checking:** [TypeScript](https://www.typescriptlang.org/)
-
-**Linting/Formatting:** [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
-
-**Icons:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons) (Brand icons only)
-
-**Auth (partial):** [Clerk](https://go.clerk.com/GttUAaK)
-
-## Run Locally
-
-Clone the project
+## Run locally
 
 ```bash
-  git clone https://github.com/satnaing/shadcn-admin.git
+pnpm install
+pnpm dev
 ```
 
-Go to the project directory
+The app runs in **demo mode** by default: sign in with any email and a password of 7+ characters. All data comes from `src/lib/api/mock/data.ts`.
+
+## Project layout
+
+| Path                     | What lives there                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `src/types/cspm.ts`      | Domain types (accounts, assets, findings, compliance, remediation)                  |
+| `src/lib/api/`           | Data layer: `cspm-api.ts` (fetch functions), `queries.ts` (TanStack Query), `mock/` |
+| `src/lib/severity.ts`    | Severity order, labels, colors and score weights                                    |
+| `src/components/cspm/`   | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
+| `src/features/dashboard` | Security overview dashboard                                                         |
+| `src/routes/`            | File-based routes (TanStack Router)                                                 |
+
+### Connecting a real backend
+
+Every screen reads data through `src/lib/api/cspm-api.ts`. Set these in `.env` to switch from mock data to an API:
 
 ```bash
-  cd shadcn-admin
+VITE_USE_MOCK_API=false
+VITE_API_URL=https://api.example.com
 ```
 
-Install dependencies
+## Tech stack
 
-```bash
-  pnpm install
-```
+React 19, Vite, TypeScript, TanStack Router / Query / Table, shadcn/ui (Tailwind CSS + Radix UI), Recharts, Zustand.
 
-Start the server
+## Credits
 
-```bash
-  pnpm run dev
-```
-
-## Sponsoring this project ❤️
-
-If you find this project helpful or use this in your own work, consider [sponsoring me](https://github.com/sponsors/satnaing) to support development and maintenance. You can [buy me a coffee](https://buymeacoffee.com/satnaing) as well. Don’t worry, every penny helps. Thank you! 🙏
-
-For questions or sponsorship inquiries, feel free to reach out at [satnaingdev@gmail.com](mailto:satnaingdev@gmail.com).
-
-### Current Sponsor
-
-- [Clerk](https://go.clerk.com/GttUAaK) - authentication and user management for the modern web
-
-## Author
-
-Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
-
-## License
-
-Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+Built on [shadcn-admin](https://github.com/satnaing/shadcn-admin) by [@satnaing](https://github.com/satnaing), licensed under the [MIT License](./LICENSE).
