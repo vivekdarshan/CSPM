@@ -60,6 +60,17 @@ export async function getAssets(): Promise<Asset[]> {
   return (await http.get<Asset[]>('/assets')).data
 }
 
+export async function getAsset(id: string): Promise<Asset> {
+  if (USE_MOCK_API) {
+    return mockDelay(null).then(() => {
+      const asset = mockAssets.find((a) => a.id === id)
+      if (!asset) throw new Error('Asset not found')
+      return structuredClone(asset)
+    })
+  }
+  return (await http.get<Asset>(`/assets/${id}`)).data
+}
+
 export async function getFindings(): Promise<Finding[]> {
   if (USE_MOCK_API) return mockDelay(mockFindings)
   return (await http.get<Finding[]>('/findings')).data

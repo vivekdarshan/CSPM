@@ -3,6 +3,7 @@ import {
   getAccount,
   getAccountScans,
   getAccounts,
+  getAsset,
   getAssets,
   getFindings,
   getFindingsTrend,
@@ -30,6 +31,8 @@ export const cspmQueries = {
         query.state.data?.some((s) => s.status === 'running') ? 2000 : false,
     }),
   assets: () => queryOptions({ queryKey: ['assets'], queryFn: getAssets }),
+  asset: (id: string) =>
+    queryOptions({ queryKey: ['assets', id], queryFn: () => getAsset(id) }),
   findings: () =>
     queryOptions({ queryKey: ['findings'], queryFn: getFindings }),
   findingsTrend: () =>
