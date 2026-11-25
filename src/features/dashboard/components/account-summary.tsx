@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from 'date-fns'
+import { Link } from '@tanstack/react-router'
 import { type CloudAccount } from '@/types/cspm'
 import { AlertTriangle } from 'lucide-react'
 import { ProviderIcon } from '@/components/cspm/provider-icon'
@@ -12,7 +13,13 @@ export function AccountSummary({ accounts }: { accounts: CloudAccount[] }) {
           <div className='flex items-center gap-3'>
             <ProviderIcon provider={a.provider} />
             <div className='min-w-0 flex-1'>
-              <p className='truncate text-sm font-medium'>{a.name}</p>
+              <Link
+                to='/accounts/$accountId'
+                params={{ accountId: a.id }}
+                className='block truncate text-sm font-medium hover:underline'
+              >
+                {a.name}
+              </Link>
               <p className='text-muted-foreground font-mono text-xs'>
                 {a.externalId}
               </p>

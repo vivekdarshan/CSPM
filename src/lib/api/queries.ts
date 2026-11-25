@@ -1,5 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
+  getAccount,
+  getAccountScans,
   getAccounts,
   getAssets,
   getFindings,
@@ -14,6 +16,19 @@ import {
 export const cspmQueries = {
   accounts: () =>
     queryOptions({ queryKey: ['accounts'], queryFn: getAccounts }),
+  account: (id: string) =>
+    queryOptions({
+      queryKey: ['accounts', id],
+      queryFn: () => getAccount(id),
+    }),
+  accountScans: (id: string) =>
+    queryOptions({
+      queryKey: ['accounts', id, 'scans'],
+      queryFn: () => getAccountScans(id),
+      // Poll while a scan is running so its result appears on its own
+      refetchInterval: (query) =>
+        query.state.data?.some((s) => s.status === 'running') ? 2000 : false,
+    }),
   assets: () => queryOptions({ queryKey: ['assets'], queryFn: getAssets }),
   findings: () =>
     queryOptions({ queryKey: ['findings'], queryFn: getFindings }),

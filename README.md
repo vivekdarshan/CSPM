@@ -14,7 +14,7 @@ A simplified security platform for small and medium businesses using AWS, Azure 
 | Phase | Scope                                                                     | Status      |
 | ----- | ------------------------------------------------------------------------- | ----------- |
 | 1     | Frontend foundation: login, sidebar, header, shared components, dashboard | Done        |
-| 2     | AWS onboarding: connection workflow, status, account details              | Not started |
+| 2     | AWS onboarding: connection workflow, status, account details              | Done        |
 | 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Not started |
 | 4     | Security findings: severity, details, risk, remediation guidance          | Not started |
 | 5     | Compliance (CIS) and alerts                                               | Not started |
@@ -38,6 +38,8 @@ The app runs in **demo mode** by default: sign in with any email and a password 
 | `src/lib/severity.ts`    | Severity order, labels, colors and score weights                                    |
 | `src/components/cspm/`   | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
 | `src/features/dashboard` | Security overview dashboard                                                         |
+| `src/features/accounts`  | Account list, AWS connect wizard, account details                                   |
+| `public/aws/`            | CloudFormation template for the read-only IAM role                                  |
 | `src/routes/`            | File-based routes (TanStack Router)                                                 |
 
 ### Connecting a real backend
@@ -48,6 +50,14 @@ Every screen reads data through `src/lib/api/cspm-api.ts`. Set these in `.env` t
 VITE_USE_MOCK_API=false
 VITE_API_URL=https://api.example.com
 ```
+
+## Connecting AWS
+
+The connect wizard (Cloud accounts → Connect account) has the customer create a read-only IAM role that Vigil assumes with an external ID:
+
+- **Template:** `public/aws/vigil-read-only-role.yaml` creates the role with the AWS-managed `SecurityAudit` and `ViewOnlyAccess` policies. No write permissions.
+- **External ID:** issued per connection by `getAwsOnboardingSetup()`. A real backend must generate and store it server-side.
+- **Demo mode:** the trusted account is `111122223333` (the AWS documentation example). Any role ARN in the same account as the entered account ID passes; the Shared Services account always fails so the error state can be seen.
 
 ## Tech stack
 

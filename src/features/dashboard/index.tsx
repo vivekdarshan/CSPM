@@ -29,12 +29,12 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { PageHeading } from '@/components/cspm/page-heading'
 import { PostureScoreRing } from '@/components/cspm/posture-score-ring'
+import { SeverityBreakdown } from '@/components/cspm/severity-breakdown'
 import { StatCard } from '@/components/cspm/stat-card'
 import { AppHeader } from '@/components/layout/app-header'
 import { Main } from '@/components/layout/main'
 import { AccountSummary } from './components/account-summary'
 import { FindingsTrendChart } from './components/findings-trend-chart'
-import { SeverityBreakdown } from './components/severity-breakdown'
 import { TopRisks } from './components/top-risks'
 
 export function Dashboard() {

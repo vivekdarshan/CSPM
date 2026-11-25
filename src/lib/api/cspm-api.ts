@@ -4,11 +4,17 @@
  */
 import {
   type Asset,
+  type AwsOnboardingSetup,
   type CloudAccount,
+  type ConnectAwsAccountInput,
+  type ConnectAwsAccountResult,
+  type ConnectionTestResult,
   type Finding,
   type FindingsTrendPoint,
   type PostureSummary,
+  type ScanRun,
   type SeverityCounts,
+  type UpdateAccountInput,
 } from '@/types/cspm'
 import { SEVERITY_META, SEVERITY_ORDER } from '@/lib/severity'
 import { USE_MOCK_API, http, mockDelay } from './client'
@@ -18,6 +24,7 @@ import {
   mockFindings,
   mockFindingsTrend,
 } from './mock/data'
+import * as mockStore from './mock/store'
 
 const isOpen = (f: Finding) => f.status === 'open' || f.status === 'in_progress'
 
@@ -103,7 +110,65 @@ export async function getPostureSummary(): Promise<PostureSummary> {
 }
 
 /** Kicks off a scan of every connected account. */
-export async function startScan(): Promise<{ scanId: string }> {
-  if (USE_MOCK_API) return mockDelay({ scanId: `scan-${Date.now()}` }, 800)
-  return (await http.post<{ scanId: string }>('/scans')).data
+export async function startScan(): Promise<ScanRun[]> {
+  if (USE_MOCK_API) return mockDelay(mockStore.startAllScans(), 800)
+  return (await http.post<ScanRun[]>('/scans')).data
+}
+
+/* ----- Account onboarding (Phase 2) ----- */
+
+export async function getAccount(id: string): Promise<CloudAccount> {
+  if (USE_MOCK_API) {
+    return mockDelay(null).then(() => structuredClone(mockStore.getAccount(id)))
+  }
+  return (await http.get<CloudAccount>(`/accounts/${id}`)).data
+}
+
+/** Issues the external ID and role details for a new AWS connection. */
+export async function getAwsOnboardingSetup(): Promise<AwsOnboardingSetup> {
+  if (USE_MOCK_API) return mockDelay(mockStore.getOnboardingSetup())
+  return (await http.post<AwsOnboardingSetup>('/accounts/aws/setup')).data
+}
+
+/** Tests the role and, if every check passes, saves the account. */
+export async function connectAwsAccount(
+  input: ConnectAwsAccountInput
+): Promise<ConnectAwsAccountResult> {
+  if (USE_MOCK_API) return mockDelay(mockStore.connectAwsAccount(input), 2200)
+  return (await http.post<ConnectAwsAccountResult>('/accounts/aws', input)).data
+}
+
+export async function testAccountConnection(
+  id: string
+): Promise<ConnectionTestResult> {
+  if (USE_MOCK_API) return mockDelay(mockStore.testConnection(id), 1800)
+  return (
+    await http.post<ConnectionTestResult>(`/accounts/${id}/test-connection`)
+  ).data
+}
+
+export async function updateAccount(
+  id: string,
+  input: UpdateAccountInput
+): Promise<CloudAccount> {
+  if (USE_MOCK_API) return mockDelay(mockStore.updateAccount(id, input))
+  return (await http.patch<CloudAccount>(`/accounts/${id}`, input)).data
+}
+
+export async function disconnectAccount(id: string): Promise<void> {
+  if (USE_MOCK_API) {
+    mockStore.disconnectAccount(id)
+    return mockDelay(undefined, 600)
+  }
+  await http.delete(`/accounts/${id}`)
+}
+
+export async function getAccountScans(accountId: string): Promise<ScanRun[]> {
+  if (USE_MOCK_API) return mockDelay(mockStore.getScanRuns(accountId))
+  return (await http.get<ScanRun[]>(`/accounts/${accountId}/scans`)).data
+}
+
+export async function startAccountScan(accountId: string): Promise<ScanRun> {
+  if (USE_MOCK_API) return mockDelay(mockStore.startAccountScan(accountId))
+  return (await http.post<ScanRun>(`/accounts/${accountId}/scans`)).data
 }
