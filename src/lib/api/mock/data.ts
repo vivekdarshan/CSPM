@@ -7,7 +7,9 @@ import {
   type CloudAccount,
   type Finding,
   type FindingsTrendPoint,
+  type ScanRun,
 } from '@/types/cspm'
+import { assumeRoleFailedChecks, passingChecks } from './checks'
 
 const now = Date.now()
 const HOUR = 60 * 60 * 1000
@@ -28,6 +30,16 @@ export const mockAccounts: CloudAccount[] = [
     lastScanAt: hoursAgo(2),
     assetCount: 0,
     openFindingCount: 0,
+    connection: {
+      roleArn: 'arn:aws:iam::418273650912:role/VigilSecurityAudit',
+      trustExternalId: 'vigil-7f3a9c2e41d8',
+      lastCheckedAt: hoursAgo(2),
+      checks: passingChecks(
+        '418273650912',
+        'arn:aws:iam::418273650912:role/VigilSecurityAudit',
+        ['eu-west-2', 'eu-west-1']
+      ),
+    },
   },
   {
     id: 'acc-staging',
@@ -41,6 +53,16 @@ export const mockAccounts: CloudAccount[] = [
     lastScanAt: hoursAgo(3),
     assetCount: 0,
     openFindingCount: 0,
+    connection: {
+      roleArn: 'arn:aws:iam::730591284466:role/VigilSecurityAudit',
+      trustExternalId: 'vigil-b81e04d7c95a',
+      lastCheckedAt: hoursAgo(3),
+      checks: passingChecks(
+        '730591284466',
+        'arn:aws:iam::730591284466:role/VigilSecurityAudit',
+        ['eu-west-2']
+      ),
+    },
   },
   {
     id: 'acc-shared',
@@ -51,11 +73,19 @@ export const mockAccounts: CloudAccount[] = [
     regions: ['us-east-1'],
     status: 'error',
     statusMessage:
-      'AssumeRole failed: the trust policy on CSPMReadOnlyRole does not allow this external ID.',
+      'AssumeRole failed: the trust policy on VigilSecurityAudit does not allow this external ID.',
     connectedAt: daysAgo(12),
     lastScanAt: daysAgo(4),
     assetCount: 0,
     openFindingCount: 0,
+    connection: {
+      roleArn: 'arn:aws:iam::295108437720:role/VigilSecurityAudit',
+      trustExternalId: 'vigil-2c6d58fa0b17',
+      lastCheckedAt: hoursAgo(6),
+      checks: assumeRoleFailedChecks(
+        'arn:aws:iam::295108437720:role/VigilSecurityAudit'
+      ),
+    },
   },
 ]
 
@@ -739,4 +769,35 @@ export const mockFindingsTrend: FindingsTrendPoint[] = Array.from(
       low: 4 + wobble(3),
     }
   }
+)
+
+/**
+ * Scan history: one scheduled scan a day per account. Shared Services has
+ * been failing since its role's trust policy changed.
+ */
+export const mockScanRuns: ScanRun[] = mockAccounts.flatMap((account) =>
+  Array.from({ length: 7 }, (_, day): ScanRun => {
+    // Shared Services: four failed runs, then successes from 4 days ago
+    const failing = account.status === 'error' && day < 4
+    const hoursBack =
+      account.status === 'error'
+        ? failing
+          ? 6 + day * 24
+          : 96 + (day - 4) * 24
+        : (account.id === 'acc-prod' ? 2 : 3) + day * 24
+    const finished = new Date(now - hoursBack * HOUR)
+    return {
+      id: `scan-${account.id}-${day}`,
+      accountId: account.id,
+      trigger: 'scheduled',
+      status: failing ? 'failed' : 'succeeded',
+      startedAt: new Date(finished.getTime() - 4 * 60 * 1000).toISOString(),
+      finishedAt: finished.toISOString(),
+      assetsScanned: failing ? null : account.assetCount,
+      findingsFound: failing
+        ? null
+        : account.openFindingCount + Math.floor(day / 2),
+      error: failing ? account.statusMessage : undefined,
+    }
+  })
 )

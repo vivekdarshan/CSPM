@@ -31,20 +31,96 @@ export type AssetCategory =
   | 'identity'
   | 'network'
 
+export type AccountEnvironment =
+  | 'production'
+  | 'staging'
+  | 'development'
+  | 'shared'
+
+export type ConnectionCheckStatus = 'pass' | 'fail' | 'warn' | 'skipped'
+
+/** One step of a connection test, e.g. "Assume IAM role". */
+export interface ConnectionCheck {
+  id: string
+  label: string
+  status: ConnectionCheckStatus
+  detail: string
+}
+
+/** How the platform reaches an AWS account: a cross-account read-only role. */
+export interface AwsConnection {
+  roleArn: string
+  /** Secret shared with the role's trust policy (confused-deputy protection) */
+  trustExternalId: string
+  lastCheckedAt: string
+  checks: ConnectionCheck[]
+}
+
 export interface CloudAccount {
   id: string
   provider: CloudProvider
   name: string
   /** AWS account ID, Azure subscription ID or GCP project ID */
   externalId: string
-  environment: 'production' | 'staging' | 'development' | 'shared'
+  environment: AccountEnvironment
   regions: string[]
   status: ConnectionStatus
   statusMessage?: string
   connectedAt: string
+  /** Last successful scan */
   lastScanAt: string | null
   assetCount: number
   openFindingCount: number
+  connection?: AwsConnection
+}
+
+/** Values the platform issues for a new AWS connection. */
+export interface AwsOnboardingSetup {
+  /** AWS account the platform scans from (trusted principal) */
+  principalAccountId: string
+  trustExternalId: string
+  roleName: string
+  /** Downloadable CloudFormation template that creates the role */
+  templatePath: string
+}
+
+export interface ConnectAwsAccountInput {
+  name: string
+  accountId: string
+  environment: AccountEnvironment
+  regions: string[]
+  roleArn: string
+  trustExternalId: string
+}
+
+export interface ConnectionTestResult {
+  ok: boolean
+  checkedAt: string
+  checks: ConnectionCheck[]
+}
+
+export interface ConnectAwsAccountResult extends ConnectionTestResult {
+  /** Set only when the test passed and the account was saved */
+  account?: CloudAccount
+}
+
+export type UpdateAccountInput = Pick<
+  CloudAccount,
+  'name' | 'environment' | 'regions'
+>
+
+export type ScanStatus = 'running' | 'succeeded' | 'failed'
+
+export interface ScanRun {
+  id: string
+  accountId: string
+  trigger: 'scheduled' | 'manual'
+  status: ScanStatus
+  startedAt: string
+  finishedAt: string | null
+  assetsScanned: number | null
+  findingsFound: number | null
+  error?: string
 }
 
 export interface Asset {
