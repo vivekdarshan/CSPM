@@ -33,6 +33,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedFindingsFindingIdRouteImport } from './routes/_authenticated/findings/$findingId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedAssetsAssetIdRouteImport } from './routes/_authenticated/assets/$assetId'
 import { Route as AuthenticatedAccountsConnectRouteImport } from './routes/_authenticated/accounts/connect'
@@ -170,6 +171,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedFindingsFindingIdRoute =
+  AuthenticatedFindingsFindingIdRouteImport.update({
+    id: '/findings/$findingId',
+    path: '/findings/$findingId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -239,6 +247,7 @@ export interface FileRoutesByTo {
   '/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -270,6 +279,7 @@ export interface FileRoutesById {
   '/_authenticated/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/_authenticated/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/accounts/connect'
     | '/assets/$assetId'
     | '/errors/$error'
+    | '/findings/$findingId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/accounts/connect'
     | '/assets/$assetId'
     | '/errors/$error'
+    | '/findings/$findingId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounts/connect'
     | '/_authenticated/assets/$assetId'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/findings/$findingId'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/findings/$findingId': {
+      id: '/_authenticated/findings/$findingId'
+      path: '/findings/$findingId'
+      fullPath: '/findings/$findingId'
+      preLoaderRoute: typeof AuthenticatedFindingsFindingIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -617,6 +637,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountsConnectRoute: typeof AuthenticatedAccountsConnectRoute
   AuthenticatedAssetsAssetIdRoute: typeof AuthenticatedAssetsAssetIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedFindingsFindingIdRoute: typeof AuthenticatedFindingsFindingIdRoute
   AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedAssetsIndexRoute: typeof AuthenticatedAssetsIndexRoute
@@ -633,6 +654,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountsConnectRoute: AuthenticatedAccountsConnectRoute,
   AuthenticatedAssetsAssetIdRoute: AuthenticatedAssetsAssetIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedFindingsFindingIdRoute: AuthenticatedFindingsFindingIdRoute,
   AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedAssetsIndexRoute: AuthenticatedAssetsIndexRoute,

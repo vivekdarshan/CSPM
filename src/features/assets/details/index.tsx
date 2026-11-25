@@ -250,7 +250,13 @@ export function AssetDetails({ assetId }: { assetId: string }) {
                             <StatusBadge status={f.status} />
                           )}
                         </div>
-                        <p className='text-sm font-medium'>{f.title}</p>
+                        <Link
+                          to='/findings/$findingId'
+                          params={{ findingId: f.id }}
+                          className='block text-sm font-medium hover:underline'
+                        >
+                          {f.title}
+                        </Link>
                         <p className='text-muted-foreground text-xs'>
                           {f.remediation.summary}
                         </p>

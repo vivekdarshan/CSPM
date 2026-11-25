@@ -15,6 +15,7 @@ import {
   type ScanRun,
   type SeverityCounts,
   type UpdateAccountInput,
+  type UpdateFindingStatusInput,
 } from '@/types/cspm'
 import { SEVERITY_META, SEVERITY_ORDER } from '@/lib/severity'
 import { USE_MOCK_API, http, mockDelay } from './client'
@@ -182,4 +183,25 @@ export async function getAccountScans(accountId: string): Promise<ScanRun[]> {
 export async function startAccountScan(accountId: string): Promise<ScanRun> {
   if (USE_MOCK_API) return mockDelay(mockStore.startAccountScan(accountId))
   return (await http.post<ScanRun>(`/accounts/${accountId}/scans`)).data
+}
+
+/* ----- Findings (Phase 4) ----- */
+
+export async function getFinding(id: string): Promise<Finding> {
+  if (USE_MOCK_API) {
+    return mockDelay(null).then(() => structuredClone(mockStore.getFinding(id)))
+  }
+  return (await http.get<Finding>(`/findings/${id}`)).data
+}
+
+export async function updateFindingStatus(
+  id: string,
+  input: UpdateFindingStatusInput
+): Promise<Finding> {
+  if (USE_MOCK_API) {
+    return mockDelay(null, 500).then(() =>
+      structuredClone(mockStore.updateFindingStatus(id, input))
+    )
+  }
+  return (await http.patch<Finding>(`/findings/${id}/status`, input)).data
 }
