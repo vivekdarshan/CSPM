@@ -51,6 +51,7 @@ import { StatCard } from '@/components/cspm/stat-card'
 import { StatusBadge } from '@/components/cspm/status-badge'
 import { AppHeader } from '@/components/layout/app-header'
 import { Main } from '@/components/layout/main'
+import { AutoFixCard } from '../components/auto-fix-card'
 import { ConnectionChecks } from '../components/connection-checks'
 import { DisconnectDialog } from '../components/disconnect-dialog'
 import { EditAccountDialog } from '../components/edit-account-dialog'
@@ -423,6 +424,8 @@ export function AccountDetails({ accountId }: { accountId: string }) {
               )}
             </CardContent>
           </Card>
+
+          {a && <AutoFixCard account={a} />}
 
           <Card className='lg:col-span-2'>
             <CardHeader>

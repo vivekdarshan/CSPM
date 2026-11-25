@@ -22,6 +22,9 @@ import {
   type ComplianceFramework,
   type NewChannelInput,
   type NotificationChannel,
+  type RemediationAction,
+  type RemediationSettings,
+  type RequestRemediationInput,
 } from '@/types/cspm'
 import { SEVERITY_META, SEVERITY_ORDER } from '@/lib/severity'
 import { USE_MOCK_API, http, mockDelay } from './client'
@@ -31,6 +34,7 @@ import {
   mockFindings,
   mockFindingsTrend,
 } from './mock/data'
+import * as mockRemediation from './mock/remediation'
 import * as mockStore from './mock/store'
 
 const isOpen = (f: Finding) => f.status === 'open' || f.status === 'in_progress'
@@ -279,4 +283,121 @@ export async function testNotificationChannel(
   if (USE_MOCK_API) return mockDelay(mockStore.testChannel(id), 900)
   return (await http.post<NotificationChannel>(`/alerts/channels/${id}/test`))
     .data
+}
+
+/* ----- Remediation (Phase 6) ----- */
+
+/** Runs a mock command after the usual latency so errors reject the promise. */
+const mockCommand = <T>(fn: () => T, ms = 400) =>
+  mockDelay(null, ms).then(() => structuredClone(fn()))
+
+export async function getRemediations(): Promise<RemediationAction[]> {
+  if (USE_MOCK_API) return mockDelay(mockRemediation.getRemediations(), 250)
+  return (await http.get<RemediationAction[]>('/remediations')).data
+}
+
+export async function getRemediation(id: string): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.getRemediation(id), 200)
+  }
+  return (await http.get<RemediationAction>(`/remediations/${id}`)).data
+}
+
+export async function requestRemediation(
+  input: RequestRemediationInput
+): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.requestRemediation(input))
+  }
+  return (await http.post<RemediationAction>('/remediations', input)).data
+}
+
+export async function approveRemediation(
+  id: string
+): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.approveRemediation(id))
+  }
+  return (await http.post<RemediationAction>(`/remediations/${id}/approve`))
+    .data
+}
+
+export async function rejectRemediation(
+  id: string,
+  reason: string
+): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.rejectRemediation(id, reason))
+  }
+  return (
+    await http.post<RemediationAction>(`/remediations/${id}/reject`, {
+      reason,
+    })
+  ).data
+}
+
+export async function cancelRemediation(
+  id: string
+): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.cancelRemediation(id))
+  }
+  return (await http.post<RemediationAction>(`/remediations/${id}/cancel`)).data
+}
+
+export async function rollbackRemediation(
+  id: string
+): Promise<RemediationAction> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.rollbackRemediation(id), 1500)
+  }
+  return (await http.post<RemediationAction>(`/remediations/${id}/rollback`))
+    .data
+}
+
+export async function getRemediationSettings(): Promise<RemediationSettings> {
+  if (USE_MOCK_API) return mockDelay(mockRemediation.remediationSettings, 200)
+  return (await http.get<RemediationSettings>('/remediations/settings')).data
+}
+
+export async function updateRemediationSettings(
+  patch: Partial<RemediationSettings>
+): Promise<RemediationSettings> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.updateRemediationSettings(patch))
+  }
+  return (
+    await http.patch<RemediationSettings>('/remediations/settings', patch)
+  ).data
+}
+
+/** Pass null to turn automatic fixes off for the account. */
+export async function setRemediationRole(
+  accountId: string,
+  roleArn: string | null
+): Promise<CloudAccount> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockStore.setRemediationRole(accountId, roleArn))
+  }
+  return (
+    await http.put<CloudAccount>(`/accounts/${accountId}/remediation-role`, {
+      roleArn,
+    })
+  ).data
+}
+
+export type RemediationPreview = Pick<
+  RemediationAction,
+  'changes' | 'apiCalls' | 'warnings' | 'reversible'
+>
+
+export async function previewRemediation(
+  findingId: string
+): Promise<RemediationPreview> {
+  if (USE_MOCK_API) {
+    return mockCommand(() => mockRemediation.previewRemediation(findingId), 300)
+  }
+  return (
+    await http.get<RemediationPreview>(`/findings/${findingId}/fix-preview`)
+  ).data
 }

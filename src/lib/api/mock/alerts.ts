@@ -31,6 +31,18 @@ export const mockAlerts: Alert[] = [
       })
     ),
   {
+    id: 'alt-rem-001',
+    type: 'remediation_pending',
+    severity: null,
+    title:
+      'Fix waiting for approval: Security group allows SSH (22) from 0.0.0.0/0',
+    message:
+      'Priya Shah asked to fix sg-staging-ssh. Someone else must approve it.',
+    createdAt: hoursAgo(2),
+    read: false,
+    remediationId: 'rem-001',
+  },
+  {
     id: 'alt-scan-shared',
     type: 'scan_failed',
     severity: null,
