@@ -72,6 +72,8 @@ export interface CloudAccount {
   assetCount: number
   openFindingCount: number
   connection?: AwsConnection
+  /** Separate, scoped write role for automatic fixes (opt-in) */
+  remediationRoleArn?: string
 }
 
 /** Values the platform issues for a new AWS connection. */
@@ -375,6 +377,8 @@ export type AlertType =
   | 'connection_failed'
   | 'scan_failed'
   | 'finding_resolved'
+  | 'remediation_failed'
+  | 'remediation_pending'
 
 export interface Alert {
   id: string
@@ -387,6 +391,7 @@ export interface Alert {
   read: boolean
   findingId?: string
   accountId?: string
+  remediationId?: string
 }
 
 export type ChannelType = 'email' | 'slack' | 'teams'
@@ -426,23 +431,93 @@ export type NewChannelInput = Pick<
   'type' | 'name' | 'target'
 >
 
-/* ----- Shapes reserved for later phases ----- */
+/* ----- Remediation (Phase 6) ----- */
 
 export type RemediationStatus =
   | 'pending_approval'
-  | 'approved'
   | 'running'
-  | 'succeeded'
+  | 'verifying'
+  | 'completed'
   | 'failed'
   | 'rejected'
+  | 'cancelled'
+  | 'rolled_back'
 
+export interface RemediationChange {
+  setting: string
+  before: string
+  after: string
+}
+
+export interface RemediationStep {
+  id: string
+  label: string
+  status: 'pending' | 'running' | 'done' | 'failed' | 'skipped'
+  detail?: string
+  finishedAt?: string
+}
+
+export interface RemediationEvent {
+  at: string
+  by: string
+  type:
+    | 'requested'
+    | 'approved'
+    | 'rejected'
+    | 'cancelled'
+    | 'started'
+    | 'completed'
+    | 'failed'
+    | 'verified'
+    | 'rolled_back'
+  note?: string
+}
+
+/** A proposed or executed automatic fix for one finding. */
 export interface RemediationAction {
   id: string
   findingId: string
-  requestedBy: string
-  approvedBy?: string
+  findingTitle: string
+  severity: Severity
+  ruleId: string
+  assetId: string
+  resourceName: string
+  resourceType: string
+  accountId: string
+  region: string
   status: RemediationStatus
-  createdAt: string
-  updatedAt: string
-  verified?: boolean
+  requestedBy: string
+  requestedAt: string
+  /** Why the fix was requested */
+  note?: string
+  decidedBy?: string
+  decidedAt?: string
+  rejectionReason?: string
+  /** What will change, setting by setting */
+  changes: RemediationChange[]
+  /** AWS API actions the fix calls */
+  apiCalls: string[]
+  /** Things that may break, shown before approval */
+  warnings: string[]
+  reversible: boolean
+  /** True while the pre-fix configuration is still available */
+  canRollBack?: boolean
+  steps: RemediationStep[]
+  verification?: {
+    status: 'passed' | 'failed'
+    checkedAt: string
+    detail: string
+  }
+  error?: string
+  events: RemediationEvent[]
+}
+
+export interface RemediationSettings {
+  /** Four-eyes rule: the requester cannot approve their own fix */
+  requireSecondApprover: boolean
+}
+
+export interface RequestRemediationInput {
+  findingId: string
+  note?: string
 }

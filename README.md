@@ -11,14 +11,14 @@ A simplified security platform for small and medium businesses using AWS, Azure 
 
 ## Build phases
 
-| Phase | Scope                                                                     | Status      |
-| ----- | ------------------------------------------------------------------------- | ----------- |
-| 1     | Frontend foundation: login, sidebar, header, shared components, dashboard | Done        |
-| 2     | AWS onboarding: connection workflow, status, account details              | Done        |
-| 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Done        |
-| 4     | Security findings: severity, details, risk, remediation guidance          | Done        |
-| 5     | Compliance (CIS) and alerts                                               | Done        |
-| 6     | Remediation: approvals, execution, verification                           | Not started |
+| Phase | Scope                                                                     | Status |
+| ----- | ------------------------------------------------------------------------- | ------ |
+| 1     | Frontend foundation: login, sidebar, header, shared components, dashboard | Done   |
+| 2     | AWS onboarding: connection workflow, status, account details              | Done   |
+| 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Done   |
+| 4     | Security findings: severity, details, risk, remediation guidance          | Done   |
+| 5     | Compliance (CIS) and alerts                                               | Done   |
+| 6     | Remediation: approvals, execution, verification                           | Done   |
 
 ## Run locally
 
@@ -31,20 +31,21 @@ The app runs in **demo mode** by default: sign in with any email and a password 
 
 ## Project layout
 
-| Path                      | What lives there                                                                    |
-| ------------------------- | ----------------------------------------------------------------------------------- |
-| `src/types/cspm.ts`       | Domain types (accounts, assets, findings, compliance, remediation)                  |
-| `src/lib/api/`            | Data layer: `cspm-api.ts` (fetch functions), `queries.ts` (TanStack Query), `mock/` |
-| `src/lib/severity.ts`     | Severity order, labels, colors and score weights                                    |
-| `src/components/cspm/`    | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
-| `src/features/dashboard`  | Security overview dashboard                                                         |
-| `src/features/accounts`   | Account list, AWS connect wizard, account details                                   |
-| `src/features/assets`     | Asset inventory (filters in the URL) and asset details                              |
-| `src/features/findings`   | Findings list, finding details (risk, fix steps, CLI), suppress / start fixing      |
-| `src/features/compliance` | CIS AWS v3.0.0 controls, account filter, CSV export, printable report               |
-| `src/features/alerts`     | Alert inbox, rules and notification channels (header bell lives in `layout/`)       |
-| `public/aws/`             | CloudFormation template for the read-only IAM role                                  |
-| `src/routes/`             | File-based routes (TanStack Router)                                                 |
+| Path                       | What lives there                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| `src/types/cspm.ts`        | Domain types (accounts, assets, findings, compliance, remediation)                  |
+| `src/lib/api/`             | Data layer: `cspm-api.ts` (fetch functions), `queries.ts` (TanStack Query), `mock/` |
+| `src/lib/severity.ts`      | Severity order, labels, colors and score weights                                    |
+| `src/components/cspm/`     | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
+| `src/features/dashboard`   | Security overview dashboard                                                         |
+| `src/features/accounts`    | Account list, AWS connect wizard, account details                                   |
+| `src/features/assets`      | Asset inventory (filters in the URL) and asset details                              |
+| `src/features/findings`    | Findings list, finding details (risk, fix steps, CLI), suppress / start fixing      |
+| `src/features/compliance`  | CIS AWS v3.0.0 controls, account filter, CSV export, printable report               |
+| `src/features/alerts`      | Alert inbox, rules and notification channels (header bell lives in `layout/`)       |
+| `src/features/remediation` | Automatic fixes: request, approve, run, verify, roll back                           |
+| `public/aws/`              | CloudFormation template for the read-only IAM role                                  |
+| `src/routes/`              | File-based routes (TanStack Router)                                                 |
 
 ### Connecting a real backend
 
@@ -62,6 +63,15 @@ The connect wizard (Cloud accounts → Connect account) has the customer create 
 - **Template:** `public/aws/vigil-read-only-role.yaml` creates the role with the AWS-managed `SecurityAudit` and `ViewOnlyAccess` policies. No write permissions.
 - **External ID:** issued per connection by `getAwsOnboardingSetup()`. A real backend must generate and store it server-side.
 - **Demo mode:** the trusted account is `111122223333` (the AWS documentation example). Any role ARN in the same account as the entered account ID passes; the Shared Services account always fails so the error state can be seen.
+
+## Automatic fixes
+
+Fixing is opt-in per account and kept separate from scanning:
+
+- **Separate role:** the connection role stays read-only. Turning fixes on means deploying `public/aws/vigil-remediation-role.yaml`, a second role that can only call the specific APIs the fixes use.
+- **Approval first:** every fix shows exactly what changes, what it calls and what might break. By default a second person must approve (the requester can't approve their own fix); small teams can turn this off on the Remediation page.
+- **Verified:** after a fix runs, the resource is re-scanned and the finding is only marked resolved if the problem is gone. Reversible fixes can be rolled back.
+- **Demo mode:** fixes run in a few seconds against the mock data. The VPC flow logs fix always fails, to show the failure path.
 
 ## Tech stack
 

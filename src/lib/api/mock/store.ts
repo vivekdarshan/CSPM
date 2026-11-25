@@ -324,7 +324,7 @@ export function getFinding(id: string): Finding {
 }
 
 /** Keep asset and account counts in step with finding status changes. */
-function recountFor(finding: Finding) {
+export function recountFor(finding: Finding) {
   const asset = mockAssets.find((a) => a.id === finding.assetId)
   if (asset) {
     asset.openFindingCount = mockFindings.filter(
@@ -400,7 +400,7 @@ export function getComplianceFramework(): ComplianceFramework {
 
 /* ----- Alerts (Phase 5) ----- */
 
-function raiseAlert(
+export function raiseAlert(
   input: Omit<Alert, 'id' | 'createdAt' | 'read' | 'severity'>
 ) {
   mockAlerts.unshift({
@@ -470,4 +470,15 @@ export function testChannel(id: string): NotificationChannel {
   if (!channel) throw new Error('Channel not found')
   channel.lastTestedAt = new Date().toISOString()
   return channel
+}
+
+/* ----- Remediation role (Phase 6) ----- */
+
+export function setRemediationRole(id: string, roleArn: string | null) {
+  const account = findAccount(id)
+  if (roleArn && accountIdFromRoleArn(roleArn) !== account.externalId) {
+    throw new Error(`The role must belong to account ${account.externalId}.`)
+  }
+  account.remediationRoleArn = roleArn ?? undefined
+  return account
 }

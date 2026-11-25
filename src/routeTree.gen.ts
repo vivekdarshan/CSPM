@@ -33,6 +33,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedRemediationActionIdRouteImport } from './routes/_authenticated/remediation/$actionId'
 import { Route as AuthenticatedFindingsFindingIdRouteImport } from './routes/_authenticated/findings/$findingId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedComplianceReportRouteImport } from './routes/_authenticated/compliance/report'
@@ -172,6 +173,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedRemediationActionIdRoute =
+  AuthenticatedRemediationActionIdRouteImport.update({
+    id: '/remediation/$actionId',
+    path: '/remediation/$actionId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFindingsFindingIdRoute =
   AuthenticatedFindingsFindingIdRouteImport.update({
     id: '/findings/$findingId',
@@ -227,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
+  '/remediation/$actionId': typeof AuthenticatedRemediationActionIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
+  '/remediation/$actionId': typeof AuthenticatedRemediationActionIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/_authenticated/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
+  '/_authenticated/remediation/$actionId': typeof AuthenticatedRemediationActionIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/compliance/report'
     | '/errors/$error'
     | '/findings/$findingId'
+    | '/remediation/$actionId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -353,6 +364,7 @@ export interface FileRouteTypes {
     | '/compliance/report'
     | '/errors/$error'
     | '/findings/$findingId'
+    | '/remediation/$actionId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -385,6 +397,7 @@ export interface FileRouteTypes {
     | '/_authenticated/compliance/report'
     | '/_authenticated/errors/$error'
     | '/_authenticated/findings/$findingId'
+    | '/_authenticated/remediation/$actionId'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -582,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/remediation/$actionId': {
+      id: '/_authenticated/remediation/$actionId'
+      path: '/remediation/$actionId'
+      fullPath: '/remediation/$actionId'
+      preLoaderRoute: typeof AuthenticatedRemediationActionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/findings/$findingId': {
       id: '/_authenticated/findings/$findingId'
       path: '/findings/$findingId'
@@ -659,6 +679,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedComplianceReportRoute: typeof AuthenticatedComplianceReportRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedFindingsFindingIdRoute: typeof AuthenticatedFindingsFindingIdRoute
+  AuthenticatedRemediationActionIdRoute: typeof AuthenticatedRemediationActionIdRoute
   AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
   AuthenticatedAlertsIndexRoute: typeof AuthenticatedAlertsIndexRoute
   AuthenticatedAssetsIndexRoute: typeof AuthenticatedAssetsIndexRoute
@@ -677,6 +698,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedComplianceReportRoute: AuthenticatedComplianceReportRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedFindingsFindingIdRoute: AuthenticatedFindingsFindingIdRoute,
+  AuthenticatedRemediationActionIdRoute: AuthenticatedRemediationActionIdRoute,
   AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,
   AuthenticatedAlertsIndexRoute: AuthenticatedAlertsIndexRoute,
   AuthenticatedAssetsIndexRoute: AuthenticatedAssetsIndexRoute,

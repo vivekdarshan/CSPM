@@ -12,7 +12,12 @@ import {
   getFindings,
   getFindingsTrend,
   getPostureSummary,
+  getRemediation,
+  getRemediationSettings,
+  getRemediations,
 } from './cspm-api'
+
+const IN_FLIGHT = new Set(['running', 'verifying'])
 
 /**
  * Query definitions shared by every screen. Use with `useQuery(...)` in
@@ -62,6 +67,28 @@ export const cspmQueries = {
     queryOptions({
       queryKey: ['alerts', 'settings'],
       queryFn: getAlertSettings,
+    }),
+  remediations: () =>
+    queryOptions({
+      queryKey: ['remediations'],
+      queryFn: getRemediations,
+      // Poll while any fix is running so progress shows up on its own
+      refetchInterval: (query) =>
+        query.state.data?.some((r) => IN_FLIGHT.has(r.status)) ? 1500 : false,
+    }),
+  remediation: (id: string) =>
+    queryOptions({
+      queryKey: ['remediations', 'detail', id],
+      queryFn: () => getRemediation(id),
+      refetchInterval: (query) =>
+        query.state.data && IN_FLIGHT.has(query.state.data.status)
+          ? 1500
+          : false,
+    }),
+  remediationSettings: () =>
+    queryOptions({
+      queryKey: ['remediations', 'settings'],
+      queryFn: getRemediationSettings,
     }),
   postureSummary: () =>
     queryOptions({

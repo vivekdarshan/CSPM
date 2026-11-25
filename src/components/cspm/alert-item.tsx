@@ -1,7 +1,14 @@
 import { formatDistanceToNow } from 'date-fns'
 import { Link } from '@tanstack/react-router'
 import { type Alert } from '@/types/cspm'
-import { CheckCircle2, ShieldAlert, Unplug, XCircle } from 'lucide-react'
+import {
+  CheckCircle2,
+  Clock,
+  ShieldAlert,
+  Unplug,
+  Wrench,
+  XCircle,
+} from 'lucide-react'
 import { SEVERITY_META } from '@/lib/severity'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +33,12 @@ function AlertIcon({ alert }: { alert: Alert }) {
       return <Unplug className={cn(base, 'text-destructive')} aria-hidden />
     case 'scan_failed':
       return <XCircle className={cn(base, 'text-destructive')} aria-hidden />
+    case 'remediation_pending':
+      return (
+        <Clock className={cn(base, 'text-severity-medium-ink')} aria-hidden />
+      )
+    case 'remediation_failed':
+      return <Wrench className={cn(base, 'text-destructive')} aria-hidden />
   }
 }
 
@@ -41,7 +54,16 @@ type AlertItemProps = {
 export function AlertItem({ alert, onOpen, compact, actions }: AlertItemProps) {
   const linkClass =
     'font-medium leading-snug hover:underline after:absolute after:inset-0'
-  const title = alert.findingId ? (
+  const title = alert.remediationId ? (
+    <Link
+      to='/remediation/$actionId'
+      params={{ actionId: alert.remediationId }}
+      className={linkClass}
+      onClick={() => onOpen?.(alert)}
+    >
+      {alert.title}
+    </Link>
+  ) : alert.findingId ? (
     <Link
       to='/findings/$findingId'
       params={{ findingId: alert.findingId }}

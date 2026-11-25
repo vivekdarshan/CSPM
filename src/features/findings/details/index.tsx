@@ -9,7 +9,6 @@ import {
   Globe,
   Info,
   Lock,
-  Zap,
 } from 'lucide-react'
 import { cspmQueries } from '@/lib/api/queries'
 import { resourceTypeMeta } from '@/lib/assets'
@@ -37,6 +36,7 @@ import { SeverityBadge } from '@/components/cspm/severity-badge'
 import { StatusBadge } from '@/components/cspm/status-badge'
 import { AppHeader } from '@/components/layout/app-header'
 import { Main } from '@/components/layout/main'
+import { AutoFixPanel } from '@/features/remediation/components/auto-fix-panel'
 import { Activity } from './activity'
 import { StatusActions } from './status-actions'
 
@@ -230,24 +230,17 @@ export function FindingDetails({ findingId }: { findingId: string }) {
                   <CardDescription>{f.remediation.summary}</CardDescription>
                 </CardHeader>
                 <CardContent className='space-y-5'>
-                  <div className='flex flex-wrap gap-x-5 gap-y-2 text-sm'>
-                    {f.remediation.effort && (
-                      <span className='text-muted-foreground inline-flex items-center gap-1.5'>
-                        <Clock className='size-4' aria-hidden />
-                        Effort:{' '}
-                        <span className='text-foreground font-medium'>
-                          {EFFORT_LABELS[f.remediation.effort]}
-                        </span>
+                  <AutoFixPanel finding={f} />
+
+                  {f.remediation.effort && (
+                    <p className='text-muted-foreground inline-flex items-center gap-1.5 text-sm'>
+                      <Clock className='size-4' aria-hidden />
+                      Effort to fix by hand:{' '}
+                      <span className='text-foreground font-medium'>
+                        {EFFORT_LABELS[f.remediation.effort]}
                       </span>
-                    )}
-                    {f.remediation.automatable && (
-                      <span className='text-muted-foreground inline-flex items-center gap-1.5'>
-                        <Zap className='size-4' aria-hidden />
-                        Can be fixed automatically from Remediation (coming
-                        soon)
-                      </span>
-                    )}
-                  </div>
+                    </p>
+                  )}
 
                   {f.remediation.steps.length > 0 && (
                     <div className='space-y-2'>

@@ -28,6 +28,7 @@ export const mockAccounts: CloudAccount[] = [
     lastScanAt: hoursAgo(2),
     assetCount: 0,
     openFindingCount: 0,
+    remediationRoleArn: 'arn:aws:iam::418273650912:role/VigilRemediation',
     connection: {
       roleArn: 'arn:aws:iam::418273650912:role/VigilSecurityAudit',
       trustExternalId: 'vigil-7f3a9c2e41d8',
@@ -51,6 +52,7 @@ export const mockAccounts: CloudAccount[] = [
     lastScanAt: hoursAgo(3),
     assetCount: 0,
     openFindingCount: 0,
+    remediationRoleArn: 'arn:aws:iam::730591284466:role/VigilRemediation',
     connection: {
       roleArn: 'arn:aws:iam::730591284466:role/VigilSecurityAudit',
       trustExternalId: 'vigil-b81e04d7c95a',
