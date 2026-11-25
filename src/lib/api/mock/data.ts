@@ -6,11 +6,13 @@ import {
   type Asset,
   type CloudAccount,
   type Finding,
+  type FindingEvent,
   type FindingsTrendPoint,
   type ScanRun,
 } from '@/types/cspm'
 import { assetSeeds } from './assets'
 import { assumeRoleFailedChecks, passingChecks } from './checks'
+import { RULE_GUIDANCE } from './rule-guidance'
 import { DAY, HOUR, daysAgo, hoursAgo, now } from './time'
 
 export const mockAccounts: CloudAccount[] = [
@@ -87,8 +89,57 @@ export const mockAccounts: CloudAccount[] = [
 
 type FindingSeed = Omit<
   Finding,
-  'provider' | 'resourceName' | 'resourceType' | 'region' | 'accountId'
+  | 'provider'
+  | 'resourceName'
+  | 'resourceType'
+  | 'region'
+  | 'accountId'
+  | 'risk'
+  | 'history'
 >
+
+/** Status changes made by people before page load. */
+const seededHistory: Record<string, FindingEvent[]> = {
+  'fnd-003': [
+    {
+      at: daysAgo(3),
+      by: 'Priya Shah',
+      type: 'status_changed',
+      status: 'in_progress',
+      note: 'Moving orders-db to private subnets this sprint.',
+    },
+  ],
+  'fnd-016': [
+    {
+      at: daysAgo(29),
+      by: 'Priya Shah',
+      type: 'status_changed',
+      status: 'suppressed',
+      reason: 'intentional',
+      note: 'Static website bucket. Public by design.',
+    },
+  ],
+  'fnd-017': [
+    {
+      at: daysAgo(5),
+      by: 'Vigil',
+      type: 'resolved_by_scan',
+      status: 'resolved',
+    },
+  ],
+}
+
+const fillTemplate = (
+  template: string,
+  asset: { name: string; resourceId: string; region: string }
+) =>
+  template
+    .split('{name}')
+    .join(asset.name)
+    .split('{resourceId}')
+    .join(asset.resourceId)
+    .split('{region}')
+    .join(asset.region === 'global' ? 'us-east-1' : asset.region)
 
 const findingSeeds: FindingSeed[] = [
   {
@@ -190,7 +241,7 @@ const findingSeeds: FindingSeed[] = [
   },
   {
     id: 'fnd-005',
-    ruleId: 'aws-sg-rdp-open',
+    ruleId: 'aws-sg-all-traffic-open',
     title: 'Security group allows all traffic from the internet',
     description:
       'sg-web-public has an inbound rule allowing all ports and protocols from 0.0.0.0/0, not just HTTP and HTTPS.',
@@ -217,7 +268,7 @@ const findingSeeds: FindingSeed[] = [
     ruleId: 'aws-iam-admin-policy',
     title: 'IAM role has full administrator access ("*:*")',
     description:
-      'LegacyAdminRole has an inline policy allowing every action on every resource. It has not been used in 97 days.',
+      'LegacyAdminRole has the AWS-managed AdministratorAccess policy, which allows every action on every resource. It was last used 41 days ago.',
     severity: 'high',
     status: 'open',
     category: 'identity',
@@ -231,7 +282,7 @@ const findingSeeds: FindingSeed[] = [
       steps: [
         'Check CloudTrail to confirm nothing still assumes the role.',
         'Delete the role if it is unused.',
-        'Otherwise, replace the inline policy with a scoped managed policy.',
+        'Otherwise, detach AdministratorAccess and attach a policy scoped to what the role needs.',
       ],
       automatable: false,
     },
@@ -241,7 +292,7 @@ const findingSeeds: FindingSeed[] = [
     ruleId: 'aws-iam-key-rotation',
     title: 'IAM access key not rotated in 90+ days',
     description:
-      'The access key for ci-deploy is 212 days old. Long-lived keys are a common source of leaks through old laptops, logs and repositories.',
+      'The access key for ci-deploy is 214 days old. Long-lived keys are a common source of leaks through old laptops, logs and repositories.',
     severity: 'high',
     status: 'open',
     category: 'identity',
@@ -487,8 +538,24 @@ const assetIndex = new Map(assetSeeds.map((a) => [a.id, a]))
 
 export const mockFindings: Finding[] = findingSeeds.map((f) => {
   const asset = assetIndex.get(f.assetId)!
+  const guidance = RULE_GUIDANCE[f.ruleId]
   return {
     ...f,
+    remediation: {
+      ...f.remediation,
+      effort: guidance?.effort,
+      cliCommand: guidance?.cli && fillTemplate(guidance.cli, asset),
+    },
+    risk: guidance?.risk ?? {
+      whyItMatters: f.description,
+      attackScenario: 'Not documented for this rule yet.',
+      impacts: [],
+      exploitability: 'moderate',
+    },
+    history: [
+      { at: f.firstSeenAt, by: 'Vigil', type: 'detected' },
+      ...(seededHistory[f.id] ?? []),
+    ],
     provider: 'aws',
     accountId: asset.accountId,
     resourceName: asset.name,

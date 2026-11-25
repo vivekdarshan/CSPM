@@ -16,7 +16,7 @@ A simplified security platform for small and medium businesses using AWS, Azure 
 | 1     | Frontend foundation: login, sidebar, header, shared components, dashboard | Done        |
 | 2     | AWS onboarding: connection workflow, status, account details              | Done        |
 | 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Done        |
-| 4     | Security findings: severity, details, risk, remediation guidance          | Not started |
+| 4     | Security findings: severity, details, risk, remediation guidance          | Done        |
 | 5     | Compliance (CIS) and alerts                                               | Not started |
 | 6     | Remediation: approvals, execution, verification                           | Not started |
 
@@ -40,6 +40,7 @@ The app runs in **demo mode** by default: sign in with any email and a password 
 | `src/features/dashboard` | Security overview dashboard                                                         |
 | `src/features/accounts`  | Account list, AWS connect wizard, account details                                   |
 | `src/features/assets`    | Asset inventory (filters in the URL) and asset details                              |
+| `src/features/findings`  | Findings list, finding details (risk, fix steps, CLI), suppress / start fixing      |
 | `public/aws/`            | CloudFormation template for the read-only IAM role                                  |
 | `src/routes/`            | File-based routes (TanStack Router)                                                 |
 

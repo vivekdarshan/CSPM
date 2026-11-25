@@ -239,6 +239,49 @@ export interface Remediation {
   steps: string[]
   /** Whether Phase 6 can apply this fix automatically */
   automatable: boolean
+  /** Rough time to fix by hand */
+  effort?: 'minutes' | 'hours' | 'days'
+  /** AWS CLI command that applies the fix, if one exists */
+  cliCommand?: string
+}
+
+export type RiskImpact =
+  | 'data_exposure'
+  | 'account_takeover'
+  | 'service_disruption'
+  | 'data_loss'
+  | 'lateral_movement'
+  | 'audit_gap'
+
+/** Plain-language explanation of why a finding matters. */
+export interface FindingRisk {
+  whyItMatters: string
+  /** How an attacker would most likely use it */
+  attackScenario: string
+  impacts: RiskImpact[]
+  /** How easy it is to exploit as configured */
+  exploitability: 'easy' | 'moderate' | 'hard'
+}
+
+export type SuppressionReason =
+  | 'intentional'
+  | 'accepted_risk'
+  | 'false_positive'
+
+export interface FindingEvent {
+  at: string
+  /** A person's name, or "Vigil" for scanner events */
+  by: string
+  type: 'detected' | 'status_changed' | 'resolved_by_scan'
+  status?: FindingStatus
+  reason?: SuppressionReason
+  note?: string
+}
+
+export interface UpdateFindingStatusInput {
+  status: Extract<FindingStatus, 'open' | 'in_progress' | 'suppressed'>
+  reason?: SuppressionReason
+  note?: string
 }
 
 export interface Finding {
@@ -260,6 +303,9 @@ export interface Finding {
   firstSeenAt: string
   lastSeenAt: string
   remediation: Remediation
+  risk: FindingRisk
+  /** Oldest first */
+  history: FindingEvent[]
 }
 
 export type SeverityCounts = Record<Severity, number>

@@ -13,7 +13,9 @@ import {
   type Finding,
   type ScanRun,
   type UpdateAccountInput,
+  type UpdateFindingStatusInput,
 } from '@/types/cspm'
+import { useAuthStore } from '@/stores/auth-store'
 import { accountIdFromRoleArn } from '@/lib/aws'
 import { assumeRoleFailedChecks, passingChecks } from './checks'
 import { mockAccounts, mockAssets, mockFindings, mockScanRuns } from './data'
@@ -286,4 +288,47 @@ export function startAllScans(): ScanRun[] {
   return mockAccounts
     .filter((a) => a.status === 'connected')
     .map((a) => startAccountScan(a.id))
+}
+
+/* ----- Findings (Phase 4) ----- */
+
+export function getFinding(id: string): Finding {
+  const finding = mockFindings.find((f) => f.id === id)
+  if (!finding) throw new Error('Finding not found')
+  return finding
+}
+
+/** Keep asset and account counts in step with finding status changes. */
+function recountFor(finding: Finding) {
+  const asset = mockAssets.find((a) => a.id === finding.assetId)
+  if (asset) {
+    asset.openFindingCount = mockFindings.filter(
+      (f) => f.assetId === asset.id && isOpen(f)
+    ).length
+  }
+  const account = mockAccounts.find((a) => a.id === finding.accountId)
+  if (account) recount(account)
+}
+
+export function updateFindingStatus(
+  id: string,
+  input: UpdateFindingStatusInput
+): Finding {
+  const finding = getFinding(id)
+  if (finding.status === 'resolved') {
+    throw new Error(
+      'Resolved findings reopen automatically if a scan sees them again.'
+    )
+  }
+  finding.status = input.status
+  finding.history.push({
+    at: new Date().toISOString(),
+    by: useAuthStore.getState().auth.user?.name ?? 'Unknown user',
+    type: 'status_changed',
+    status: input.status,
+    reason: input.status === 'suppressed' ? input.reason : undefined,
+    note: input.note?.trim() || undefined,
+  })
+  recountFor(finding)
+  return finding
 }

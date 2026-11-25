@@ -5,6 +5,7 @@ import {
   getAccounts,
   getAsset,
   getAssets,
+  getFinding,
   getFindings,
   getFindingsTrend,
   getPostureSummary,
@@ -35,6 +36,11 @@ export const cspmQueries = {
     queryOptions({ queryKey: ['assets', id], queryFn: () => getAsset(id) }),
   findings: () =>
     queryOptions({ queryKey: ['findings'], queryFn: getFindings }),
+  finding: (id: string) =>
+    queryOptions({
+      queryKey: ['findings', 'detail', id],
+      queryFn: () => getFinding(id),
+    }),
   findingsTrend: () =>
     queryOptions({
       queryKey: ['findings', 'trend'],
