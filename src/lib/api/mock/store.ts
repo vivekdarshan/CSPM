@@ -14,10 +14,21 @@ import {
   type ScanRun,
   type UpdateAccountInput,
   type UpdateFindingStatusInput,
+  type Alert,
+  type AlertRule,
+  type ComplianceFramework,
+  type NewChannelInput,
+  type NotificationChannel,
 } from '@/types/cspm'
 import { useAuthStore } from '@/stores/auth-store'
 import { accountIdFromRoleArn } from '@/lib/aws'
+import { mockAlertSettings, mockAlerts } from './alerts'
 import { assumeRoleFailedChecks, passingChecks } from './checks'
+import {
+  CIS_AWS_CONTROLS,
+  CIS_AWS_FRAMEWORK,
+  CIS_AWS_SECTIONS,
+} from './cis-aws'
 import { mockAccounts, mockAssets, mockFindings, mockScanRuns } from './data'
 
 /** Example account ID from the AWS docs; a real backend returns its own. */
@@ -134,6 +145,14 @@ export function testConnection(id: string): ConnectionTestResult {
     : assumeRoleFailedChecks(roleArn)
   const checkedAt = new Date().toISOString()
 
+  if (!ok && account.status !== 'error') {
+    raiseAlert({
+      type: 'connection_failed',
+      title: `Connection lost: ${account.name}`,
+      message: checks[0].detail,
+      accountId: account.id,
+    })
+  }
   account.status = ok ? 'connected' : 'error'
   account.statusMessage = ok ? undefined : checks[0].detail
   account.connection = {
@@ -247,6 +266,12 @@ function finishScan(run: ScanRun) {
   if (account.status !== 'connected') {
     run.status = 'failed'
     run.error = account.statusMessage ?? 'Could not reach the account.'
+    raiseAlert({
+      type: 'scan_failed',
+      title: `Scan failed: ${account.name}`,
+      message: run.error,
+      accountId: account.id,
+    })
     return
   }
   if (account.lastScanAt === null && account.assetCount === 0) {
@@ -331,4 +356,118 @@ export function updateFindingStatus(
   })
   recountFor(finding)
   return finding
+}
+
+/* ----- Compliance (Phase 5) ----- */
+
+/** Evaluate every CIS control against the current findings. */
+export function getComplianceFramework(): ComplianceFramework {
+  const byControl = new Map<string, Finding[]>()
+  for (const f of mockFindings) {
+    for (const ref of f.complianceRefs) {
+      const id = ref.replace('CIS AWS ', '')
+      byControl.set(id, [...(byControl.get(id) ?? []), f])
+    }
+  }
+  const lastScan = mockAccounts
+    .map((a) => a.lastScanAt)
+    .filter((d): d is string => d !== null)
+    .sort()
+  return {
+    ...CIS_AWS_FRAMEWORK,
+    sections: CIS_AWS_SECTIONS,
+    evaluatedAt: lastScan[lastScan.length - 1] ?? new Date().toISOString(),
+    controls: CIS_AWS_CONTROLS.map((c) => {
+      const related = byControl.get(c.controlId) ?? []
+      const failing = related.filter(isOpen).map((f) => f.id)
+      return {
+        ...c,
+        sectionId: c.controlId.split('.')[0],
+        status:
+          c.assessment === 'manual'
+            ? 'manual'
+            : failing.length > 0
+              ? 'fail'
+              : 'pass',
+        failingFindingIds: failing,
+        exceptionFindingIds: related
+          .filter((f) => f.status === 'suppressed')
+          .map((f) => f.id),
+      }
+    }),
+  }
+}
+
+/* ----- Alerts (Phase 5) ----- */
+
+function raiseAlert(
+  input: Omit<Alert, 'id' | 'createdAt' | 'read' | 'severity'>
+) {
+  mockAlerts.unshift({
+    ...input,
+    id: `alt-${randomHex(6)}`,
+    severity: null,
+    createdAt: new Date().toISOString(),
+    read: false,
+  })
+}
+
+export function getAlerts(): Alert[] {
+  return mockAlerts
+}
+
+export function markAlertsRead(ids: string[] | 'all') {
+  for (const alert of mockAlerts) {
+    if (ids === 'all' || ids.includes(alert.id)) alert.read = true
+  }
+}
+
+export function getAlertSettings() {
+  return mockAlertSettings
+}
+
+export function updateAlertRule(
+  id: string,
+  patch: Partial<Pick<AlertRule, 'enabled' | 'minSeverity' | 'channelIds'>>
+): AlertRule {
+  const rule = mockAlertSettings.rules.find((r) => r.id === id)
+  if (!rule) throw new Error('Rule not found')
+  Object.assign(rule, patch)
+  return rule
+}
+
+export function addChannel(input: NewChannelInput): NotificationChannel {
+  const channel: NotificationChannel = {
+    ...input,
+    id: `ch-${randomHex(4)}`,
+    enabled: true,
+    lastTestedAt: null,
+  }
+  mockAlertSettings.channels.push(channel)
+  return channel
+}
+
+export function updateChannel(
+  id: string,
+  patch: Partial<Pick<NotificationChannel, 'enabled'>>
+): NotificationChannel {
+  const channel = mockAlertSettings.channels.find((c) => c.id === id)
+  if (!channel) throw new Error('Channel not found')
+  Object.assign(channel, patch)
+  return channel
+}
+
+export function removeChannel(id: string) {
+  removeWhere(mockAlertSettings.channels, (c) => c.id === id)
+  for (const rule of mockAlertSettings.rules) {
+    rule.channelIds = rule.channelIds.filter((c) => c !== id)
+  }
+}
+
+/** Pretends to deliver a test message; always succeeds in demo mode. */
+export function testChannel(id: string): NotificationChannel {
+  const channel = mockAlertSettings.channels.find((c) => c.id === id)
+  if (!channel) throw new Error('Channel not found')
+  channel.lastTestedAt = new Date().toISOString()
+  return channel
 }

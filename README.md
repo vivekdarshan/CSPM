@@ -17,7 +17,7 @@ A simplified security platform for small and medium businesses using AWS, Azure 
 | 2     | AWS onboarding: connection workflow, status, account details              | Done        |
 | 3     | Asset inventory: EC2, S3, RDS, IAM, security groups                       | Done        |
 | 4     | Security findings: severity, details, risk, remediation guidance          | Done        |
-| 5     | Compliance (CIS) and alerts                                               | Not started |
+| 5     | Compliance (CIS) and alerts                                               | Done        |
 | 6     | Remediation: approvals, execution, verification                           | Not started |
 
 ## Run locally
@@ -31,18 +31,20 @@ The app runs in **demo mode** by default: sign in with any email and a password 
 
 ## Project layout
 
-| Path                     | What lives there                                                                    |
-| ------------------------ | ----------------------------------------------------------------------------------- |
-| `src/types/cspm.ts`      | Domain types (accounts, assets, findings, compliance, remediation)                  |
-| `src/lib/api/`           | Data layer: `cspm-api.ts` (fetch functions), `queries.ts` (TanStack Query), `mock/` |
-| `src/lib/severity.ts`    | Severity order, labels, colors and score weights                                    |
-| `src/components/cspm/`   | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
-| `src/features/dashboard` | Security overview dashboard                                                         |
-| `src/features/accounts`  | Account list, AWS connect wizard, account details                                   |
-| `src/features/assets`    | Asset inventory (filters in the URL) and asset details                              |
-| `src/features/findings`  | Findings list, finding details (risk, fix steps, CLI), suppress / start fixing      |
-| `public/aws/`            | CloudFormation template for the read-only IAM role                                  |
-| `src/routes/`            | File-based routes (TanStack Router)                                                 |
+| Path                      | What lives there                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `src/types/cspm.ts`       | Domain types (accounts, assets, findings, compliance, remediation)                  |
+| `src/lib/api/`            | Data layer: `cspm-api.ts` (fetch functions), `queries.ts` (TanStack Query), `mock/` |
+| `src/lib/severity.ts`     | Severity order, labels, colors and score weights                                    |
+| `src/components/cspm/`    | Reusable security UI: severity/status badges, provider icon, score ring, stat card  |
+| `src/features/dashboard`  | Security overview dashboard                                                         |
+| `src/features/accounts`   | Account list, AWS connect wizard, account details                                   |
+| `src/features/assets`     | Asset inventory (filters in the URL) and asset details                              |
+| `src/features/findings`   | Findings list, finding details (risk, fix steps, CLI), suppress / start fixing      |
+| `src/features/compliance` | CIS AWS v3.0.0 controls, account filter, CSV export, printable report               |
+| `src/features/alerts`     | Alert inbox, rules and notification channels (header bell lives in `layout/`)       |
+| `public/aws/`             | CloudFormation template for the read-only IAM role                                  |
+| `src/routes/`             | File-based routes (TanStack Router)                                                 |
 
 ### Connecting a real backend
 

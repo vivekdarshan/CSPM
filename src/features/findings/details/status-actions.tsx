@@ -42,6 +42,7 @@ export function StatusActions({ finding }: { finding: Finding }) {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
       queryClient.invalidateQueries({ queryKey: ['accounts'] })
       queryClient.invalidateQueries({ queryKey: ['posture'] })
+      queryClient.invalidateQueries({ queryKey: ['compliance'] })
       setSuppressOpen(false)
     },
   })

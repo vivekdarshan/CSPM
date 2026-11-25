@@ -332,16 +332,101 @@ export interface FindingsTrendPoint {
   low: number
 }
 
-/* ----- Shapes reserved for later phases ----- */
+/* ----- Compliance (Phase 5) ----- */
+
+/** pass/fail come from scans; manual controls need a person to check. */
+export type ControlStatus = 'pass' | 'fail' | 'manual'
 
 export interface ComplianceControl {
-  id: string
-  framework: 'CIS AWS Foundations' | 'CIS Azure' | 'CIS GCP'
+  /** e.g. "1.5" */
   controlId: string
   title: string
-  status: 'pass' | 'fail' | 'not_applicable'
+  /** One-line explanation of what the control checks */
+  description: string
+  sectionId: string
+  /** CIS profile level: 1 is baseline, 2 is defence in depth */
+  level: 1 | 2
+  assessment: 'automated' | 'manual'
+  status: ControlStatus
+  /** Open or in-progress findings that fail this control */
   failingFindingIds: string[]
+  /** Suppressed findings, shown as exceptions */
+  exceptionFindingIds: string[]
 }
+
+export interface ComplianceSection {
+  id: string
+  title: string
+}
+
+export interface ComplianceFramework {
+  id: string
+  name: string
+  version: string
+  sections: ComplianceSection[]
+  controls: ComplianceControl[]
+  evaluatedAt: string
+}
+
+/* ----- Alerts (Phase 5) ----- */
+
+export type AlertType =
+  | 'new_finding'
+  | 'connection_failed'
+  | 'scan_failed'
+  | 'finding_resolved'
+
+export interface Alert {
+  id: string
+  type: AlertType
+  /** Set for finding alerts */
+  severity: Severity | null
+  title: string
+  message: string
+  createdAt: string
+  read: boolean
+  findingId?: string
+  accountId?: string
+}
+
+export type ChannelType = 'email' | 'slack' | 'teams'
+
+export interface NotificationChannel {
+  id: string
+  type: ChannelType
+  name: string
+  /** Email address or webhook URL */
+  target: string
+  enabled: boolean
+  lastTestedAt: string | null
+}
+
+export type AlertTrigger =
+  | 'new_finding'
+  | 'connection_failed'
+  | 'scan_failed'
+  | 'weekly_digest'
+
+export interface AlertRule {
+  id: string
+  trigger: AlertTrigger
+  /** For new_finding: alert at this severity and above */
+  minSeverity?: Exclude<Severity, 'informational'>
+  channelIds: string[]
+  enabled: boolean
+}
+
+export interface AlertSettings {
+  rules: AlertRule[]
+  channels: NotificationChannel[]
+}
+
+export type NewChannelInput = Pick<
+  NotificationChannel,
+  'type' | 'name' | 'target'
+>
+
+/* ----- Shapes reserved for later phases ----- */
 
 export type RemediationStatus =
   | 'pending_approval'

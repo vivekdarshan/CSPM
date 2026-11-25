@@ -249,7 +249,7 @@ const findingSeeds: FindingSeed[] = [
     status: 'open',
     category: 'exposure',
     assetId: 'ast-009',
-    complianceRefs: ['CIS AWS 5.2', 'CIS AWS 5.3'],
+    complianceRefs: ['CIS AWS 5.2'],
     firstSeenAt: daysAgo(6),
     lastSeenAt: hoursAgo(2),
     remediation: {
@@ -367,7 +367,7 @@ const findingSeeds: FindingSeed[] = [
     status: 'open',
     category: 'logging',
     assetId: 'ast-014',
-    complianceRefs: ['CIS AWS 3.9'],
+    complianceRefs: ['CIS AWS 3.7'],
     firstSeenAt: daysAgo(64),
     lastSeenAt: hoursAgo(2),
     remediation: {
@@ -460,7 +460,7 @@ const findingSeeds: FindingSeed[] = [
     status: 'open',
     category: 'logging',
     assetId: 'ast-003',
-    complianceRefs: ['CIS AWS 3.6'],
+    complianceRefs: [],
     firstSeenAt: daysAgo(30),
     lastSeenAt: hoursAgo(2),
     remediation: {
