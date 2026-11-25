@@ -1,19 +1,11 @@
+import { z } from 'zod'
 import { createFileRoute } from '@tanstack/react-router'
-import { Bell } from 'lucide-react'
-import { PhasePlaceholder } from '@/components/cspm/phase-placeholder'
+import { Alerts } from '@/features/alerts'
 
 export const Route = createFileRoute('/_authenticated/alerts/')({
-  component: () => (
-    <PhasePlaceholder
-      title='Alerts'
-      description='Get notified when new risks appear in your cloud.'
-      phase={5}
-      icon={Bell}
-      plannedFeatures={[
-        'Alert rules by severity, account and category',
-        'Email and Slack notifications',
-        'Alert history',
-      ]}
-    />
-  ),
+  validateSearch: z.object({
+    tab: z.enum(['inbox', 'rules', 'channels']).optional().catch(undefined),
+    unread: z.boolean().optional().catch(undefined),
+  }),
+  component: Alerts,
 })

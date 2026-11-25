@@ -1,6 +1,9 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
   getAccount,
+  getAlertSettings,
+  getAlerts,
+  getCompliance,
   getAccountScans,
   getAccounts,
   getAsset,
@@ -45,6 +48,20 @@ export const cspmQueries = {
     queryOptions({
       queryKey: ['findings', 'trend'],
       queryFn: getFindingsTrend,
+    }),
+  compliance: () =>
+    queryOptions({ queryKey: ['compliance'], queryFn: getCompliance }),
+  alerts: () =>
+    queryOptions({
+      queryKey: ['alerts'],
+      queryFn: getAlerts,
+      // Keep the bell fresh without a websocket
+      refetchInterval: 60_000,
+    }),
+  alertSettings: () =>
+    queryOptions({
+      queryKey: ['alerts', 'settings'],
+      queryFn: getAlertSettings,
     }),
   postureSummary: () =>
     queryOptions({

@@ -16,6 +16,12 @@ import {
   type SeverityCounts,
   type UpdateAccountInput,
   type UpdateFindingStatusInput,
+  type Alert,
+  type AlertRule,
+  type AlertSettings,
+  type ComplianceFramework,
+  type NewChannelInput,
+  type NotificationChannel,
 } from '@/types/cspm'
 import { SEVERITY_META, SEVERITY_ORDER } from '@/lib/severity'
 import { USE_MOCK_API, http, mockDelay } from './client'
@@ -204,4 +210,73 @@ export async function updateFindingStatus(
     )
   }
   return (await http.patch<Finding>(`/findings/${id}/status`, input)).data
+}
+
+/* ----- Compliance (Phase 5) ----- */
+
+export async function getCompliance(): Promise<ComplianceFramework> {
+  if (USE_MOCK_API) return mockDelay(mockStore.getComplianceFramework())
+  return (await http.get<ComplianceFramework>('/compliance/cis-aws')).data
+}
+
+/* ----- Alerts (Phase 5) ----- */
+
+export async function getAlerts(): Promise<Alert[]> {
+  if (USE_MOCK_API) return mockDelay(mockStore.getAlerts(), 250)
+  return (await http.get<Alert[]>('/alerts')).data
+}
+
+export async function markAlertsRead(ids: string[] | 'all'): Promise<void> {
+  if (USE_MOCK_API) {
+    mockStore.markAlertsRead(ids)
+    return mockDelay(undefined, 150)
+  }
+  await http.post('/alerts/read', { ids })
+}
+
+export async function getAlertSettings(): Promise<AlertSettings> {
+  if (USE_MOCK_API) return mockDelay(mockStore.getAlertSettings())
+  return (await http.get<AlertSettings>('/alerts/settings')).data
+}
+
+export async function updateAlertRule(
+  id: string,
+  patch: Partial<Pick<AlertRule, 'enabled' | 'minSeverity' | 'channelIds'>>
+): Promise<AlertRule> {
+  if (USE_MOCK_API) return mockDelay(mockStore.updateAlertRule(id, patch), 200)
+  return (await http.patch<AlertRule>(`/alerts/rules/${id}`, patch)).data
+}
+
+export async function addNotificationChannel(
+  input: NewChannelInput
+): Promise<NotificationChannel> {
+  if (USE_MOCK_API) return mockDelay(mockStore.addChannel(input))
+  return (await http.post<NotificationChannel>('/alerts/channels', input)).data
+}
+
+export async function updateNotificationChannel(
+  id: string,
+  patch: Partial<Pick<NotificationChannel, 'enabled'>>
+): Promise<NotificationChannel> {
+  if (USE_MOCK_API) return mockDelay(mockStore.updateChannel(id, patch), 200)
+  return (
+    await http.patch<NotificationChannel>(`/alerts/channels/${id}`, patch)
+  ).data
+}
+
+export async function removeNotificationChannel(id: string): Promise<void> {
+  if (USE_MOCK_API) {
+    mockStore.removeChannel(id)
+    return mockDelay(undefined)
+  }
+  await http.delete(`/alerts/channels/${id}`)
+}
+
+/** Sends a test message through the channel. */
+export async function testNotificationChannel(
+  id: string
+): Promise<NotificationChannel> {
+  if (USE_MOCK_API) return mockDelay(mockStore.testChannel(id), 900)
+  return (await http.post<NotificationChannel>(`/alerts/channels/${id}/test`))
+    .data
 }

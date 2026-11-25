@@ -35,6 +35,7 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedFindingsFindingIdRouteImport } from './routes/_authenticated/findings/$findingId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedComplianceReportRouteImport } from './routes/_authenticated/compliance/report'
 import { Route as AuthenticatedAssetsAssetIdRouteImport } from './routes/_authenticated/assets/$assetId'
 import { Route as AuthenticatedAccountsConnectRouteImport } from './routes/_authenticated/accounts/connect'
 import { Route as AuthenticatedAccountsAccountIdRouteImport } from './routes/_authenticated/accounts/$accountId'
@@ -183,6 +184,12 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedComplianceReportRoute =
+  AuthenticatedComplianceReportRouteImport.update({
+    id: '/compliance/report',
+    path: '/compliance/report',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAssetsAssetIdRoute =
   AuthenticatedAssetsAssetIdRouteImport.update({
     id: '/assets/$assetId',
@@ -217,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
+  '/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -246,6 +254,7 @@ export interface FileRoutesByTo {
   '/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
+  '/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -278,6 +287,7 @@ export interface FileRoutesById {
   '/_authenticated/accounts/$accountId': typeof AuthenticatedAccountsAccountIdRoute
   '/_authenticated/accounts/connect': typeof AuthenticatedAccountsConnectRoute
   '/_authenticated/assets/$assetId': typeof AuthenticatedAssetsAssetIdRoute
+  '/_authenticated/compliance/report': typeof AuthenticatedComplianceReportRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/findings/$findingId': typeof AuthenticatedFindingsFindingIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/accounts/$accountId'
     | '/accounts/connect'
     | '/assets/$assetId'
+    | '/compliance/report'
     | '/errors/$error'
     | '/findings/$findingId'
     | '/settings/account'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/accounts/$accountId'
     | '/accounts/connect'
     | '/assets/$assetId'
+    | '/compliance/report'
     | '/errors/$error'
     | '/findings/$findingId'
     | '/settings/account'
@@ -370,6 +382,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounts/$accountId'
     | '/_authenticated/accounts/connect'
     | '/_authenticated/assets/$assetId'
+    | '/_authenticated/compliance/report'
     | '/_authenticated/errors/$error'
     | '/_authenticated/findings/$findingId'
     | '/_authenticated/settings/account'
@@ -583,6 +596,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/compliance/report': {
+      id: '/_authenticated/compliance/report'
+      path: '/compliance/report'
+      fullPath: '/compliance/report'
+      preLoaderRoute: typeof AuthenticatedComplianceReportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/assets/$assetId': {
       id: '/_authenticated/assets/$assetId'
       path: '/assets/$assetId'
@@ -636,6 +656,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountsAccountIdRoute: typeof AuthenticatedAccountsAccountIdRoute
   AuthenticatedAccountsConnectRoute: typeof AuthenticatedAccountsConnectRoute
   AuthenticatedAssetsAssetIdRoute: typeof AuthenticatedAssetsAssetIdRoute
+  AuthenticatedComplianceReportRoute: typeof AuthenticatedComplianceReportRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedFindingsFindingIdRoute: typeof AuthenticatedFindingsFindingIdRoute
   AuthenticatedAccountsIndexRoute: typeof AuthenticatedAccountsIndexRoute
@@ -653,6 +674,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountsAccountIdRoute: AuthenticatedAccountsAccountIdRoute,
   AuthenticatedAccountsConnectRoute: AuthenticatedAccountsConnectRoute,
   AuthenticatedAssetsAssetIdRoute: AuthenticatedAssetsAssetIdRoute,
+  AuthenticatedComplianceReportRoute: AuthenticatedComplianceReportRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedFindingsFindingIdRoute: AuthenticatedFindingsFindingIdRoute,
   AuthenticatedAccountsIndexRoute: AuthenticatedAccountsIndexRoute,

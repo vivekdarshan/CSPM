@@ -28,6 +28,24 @@
     cursor: pointer;
   }
 
+  /* Printing (e.g. the compliance report): page content only, light colours */
+  @media print {
+    [data-slot='sidebar-gap'],
+    [data-slot='sidebar-container'],
+    [data-slot='sidebar'] {
+      display: none !important;
+    }
+    body,
+    [data-slot='sidebar-inset'] {
+      background: white !important;
+    }
+    [data-slot='sidebar-inset'] {
+      margin: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+  }
+
   /* Prevent focus zoom on mobile devices */
   @media screen and (max-width: 767px) {
     input,
