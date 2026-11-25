@@ -110,6 +110,14 @@ export function useTableUrlState(
   const [columnFilters, setColumnFilters] =
     useState<ColumnFiltersState>(initialColumnFilters)
 
+  // Re-sync when the URL changes from outside the table (links, back button)
+  const urlFiltersKey = JSON.stringify(initialColumnFilters)
+  const [syncedFiltersKey, setSyncedFiltersKey] = useState(urlFiltersKey)
+  if (syncedFiltersKey !== urlFiltersKey) {
+    setSyncedFiltersKey(urlFiltersKey)
+    setColumnFilters(initialColumnFilters)
+  }
+
   const pagination: PaginationState = useMemo(() => {
     const rawPage = (search as SearchRecord)[pageKey]
     const rawPageSize = (search as SearchRecord)[pageSizeKey]
@@ -133,11 +141,22 @@ export function useTableUrlState(
     })
   }
 
-  const [globalFilter, setGlobalFilter] = useState<string | undefined>(() => {
+  const urlGlobalFilter = (() => {
     if (!globalFilterEnabled) return undefined
     const raw = (search as SearchRecord)[globalFilterKey]
     return typeof raw === 'string' ? raw : ''
-  })
+  })()
+  const [globalFilter, setGlobalFilter] = useState<string | undefined>(
+    urlGlobalFilter
+  )
+  const [syncedGlobalFilter, setSyncedGlobalFilter] = useState(urlGlobalFilter)
+  if (syncedGlobalFilter !== urlGlobalFilter) {
+    setSyncedGlobalFilter(urlGlobalFilter)
+    // Typing trims before writing the URL; keep the untrimmed text the user sees
+    if ((globalFilter ?? '').trim() !== (urlGlobalFilter ?? '')) {
+      setGlobalFilter(urlGlobalFilter)
+    }
+  }
 
   const onGlobalFilterChange: OnChangeFn<string> | undefined =
     globalFilterEnabled
@@ -147,7 +166,8 @@ export function useTableUrlState(
               ? updater(globalFilter ?? '')
               : updater
           const value = trimGlobal ? next.trim() : next
-          setGlobalFilter(value)
+          // Keep spaces in the box while typing; only the URL is trimmed
+          setGlobalFilter(next)
           navigate({
             search: (prev) => ({
               ...(prev as SearchRecord),

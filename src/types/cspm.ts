@@ -123,6 +123,99 @@ export interface ScanRun {
   error?: string
 }
 
+export interface SecurityGroupRule {
+  protocol: 'tcp' | 'udp' | 'icmp' | 'all'
+  /** "22", "443", "0-65535" or "All" */
+  ports: string
+  /** CIDR or security group ID */
+  source: string
+  description?: string
+}
+
+export interface IamAccessKey {
+  id: string
+  active: boolean
+  createdAt: string
+  lastUsedAt: string | null
+}
+
+/** Security-relevant settings, shaped per resource type. */
+export type AssetConfiguration =
+  | {
+      kind: 'ec2_instance'
+      instanceType: string
+      state: 'running' | 'stopped'
+      publicIp: string | null
+      privateIp: string
+      vpcId: string
+      securityGroupIds: string[]
+      iamRole: string | null
+      imdsV2Required: boolean
+      launchedAt: string
+    }
+  | {
+      kind: 's3_bucket'
+      blockPublicAccess: boolean
+      publicPolicy: boolean
+      encryption: 'SSE-S3' | 'SSE-KMS' | 'none'
+      versioning: boolean
+      accessLogging: boolean
+      sizeGb: number
+    }
+  | {
+      kind: 'rds_instance'
+      engine: string
+      instanceClass: string
+      publiclyAccessible: boolean
+      storageEncrypted: boolean
+      multiAz: boolean
+      backupRetentionDays: number
+      deletionProtection: boolean
+    }
+  | {
+      kind: 'iam_user'
+      consoleAccess: boolean
+      mfaEnabled: boolean
+      accessKeys: IamAccessKey[]
+      lastActivityAt: string | null
+      policies: string[]
+    }
+  | {
+      kind: 'iam_role'
+      trustedEntities: string[]
+      policies: string[]
+      lastUsedAt: string | null
+    }
+  | {
+      kind: 'security_group'
+      vpcId: string
+      description: string
+      inboundRules: SecurityGroupRule[]
+      attachedResources: number
+    }
+  | {
+      kind: 'vpc'
+      cidrBlock: string
+      flowLogsEnabled: boolean
+      isDefault: boolean
+    }
+  | {
+      kind: 'ebs_volume'
+      sizeGb: number
+      volumeType: string
+      encrypted: boolean
+      attachedTo: string | null
+    }
+  | {
+      kind: 'password_policy'
+      minimumLength: number
+      requireSymbols: boolean
+      requireNumbers: boolean
+      requireUppercase: boolean
+      maxAgeDays: number | null
+      reusePrevention: number | null
+    }
+
 export interface Asset {
   id: string
   accountId: string
@@ -131,11 +224,14 @@ export interface Asset {
   /** Provider-native type, e.g. "AWS::S3::Bucket" */
   resourceType: string
   name: string
+  /** Provider identifier, e.g. an instance ID or ARN */
+  resourceId: string
   region: string
   tags: Record<string, string>
   publiclyExposed: boolean
   openFindingCount: number
   lastSeenAt: string
+  configuration: AssetConfiguration
 }
 
 export interface Remediation {

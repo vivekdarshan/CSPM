@@ -303,7 +303,19 @@ export function AccountDetails({ accountId }: { accountId: string }) {
             icon={Boxes}
             loading={!a}
             value={a?.assetCount}
-            description='Resources found in the last scan'
+            description={
+              a && a.assetCount > 0 ? (
+                <Link
+                  to='/assets'
+                  search={{ account: [a.id] }}
+                  className='hover:text-foreground underline underline-offset-4'
+                >
+                  View in asset inventory
+                </Link>
+              ) : (
+                'Resources found in the last scan'
+              )
+            }
           />
           <StatCard
             title='Regions'

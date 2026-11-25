@@ -186,7 +186,17 @@ function discoverStarterAssets(account: CloudAccount) {
       category: 'storage',
       resourceType: 'AWS::S3::Bucket',
       name: `${slug}-logs`,
+      resourceId: `arn:aws:s3:::${slug}-logs`,
       region,
+      configuration: {
+        kind: 's3_bucket',
+        blockPublicAccess: true,
+        publicPolicy: false,
+        encryption: 'SSE-S3',
+        versioning: true,
+        accessLogging: true,
+        sizeGb: 3,
+      },
     },
     {
       ...base,
@@ -194,7 +204,20 @@ function discoverStarterAssets(account: CloudAccount) {
       category: 'compute',
       resourceType: 'AWS::EC2::Instance',
       name: `${slug}-app-01`,
+      resourceId: `i-0${randomHex(8).slice(0, 16)}`,
       region,
+      configuration: {
+        kind: 'ec2_instance',
+        instanceType: 't3.small',
+        state: 'running',
+        publicIp: null,
+        privateIp: '10.0.1.10',
+        vpcId: `vpc-0${randomHex(8).slice(0, 16)}`,
+        securityGroupIds: [],
+        iamRole: null,
+        imdsV2Required: true,
+        launchedAt: seen,
+      },
     },
     {
       ...base,
@@ -202,7 +225,14 @@ function discoverStarterAssets(account: CloudAccount) {
       category: 'identity',
       resourceType: 'AWS::IAM::Role',
       name: `${slug}-deploy`,
+      resourceId: `arn:aws:iam::${account.externalId}:role/${slug}-deploy`,
       region: 'global',
+      configuration: {
+        kind: 'iam_role',
+        trustedEntities: ['codebuild.amazonaws.com'],
+        policies: [`${slug}-deploy`],
+        lastUsedAt: null,
+      },
     },
   ]
   mockAssets.push(...assets)

@@ -116,7 +116,15 @@ export function Dashboard() {
               icon={Globe}
               loading={!s}
               value={s?.exposedAssets}
-              description='Resources reachable from the internet'
+              description={
+                <Link
+                  to='/assets'
+                  search={{ exposure: ['public'] }}
+                  className='hover:text-foreground underline underline-offset-4'
+                >
+                  View internet-facing resources
+                </Link>
+              }
             />
             <StatCard
               title='Assets monitored'
